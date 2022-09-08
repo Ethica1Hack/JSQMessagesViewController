@@ -22,14 +22,12 @@
 #import "NSBundle+JSQMessages.h"
 
 
-const CGFloat kJSQMessagesLoadEarlierHeaderViewHeight = 32.0f;
+const CGFloat kJSQMessagesLoadEarlierHeaderViewHeight = 0.0f;
 
 
 @interface JSQMessagesLoadEarlierHeaderView ()
 
 @property (weak, nonatomic) IBOutlet UIButton *loadButton;
-
-- (IBAction)loadButtonPressed:(UIButton *)sender;
 
 @end
 

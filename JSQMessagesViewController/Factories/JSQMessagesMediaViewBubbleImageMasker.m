@@ -21,13 +21,6 @@
 #import "JSQMessagesBubbleImageFactory.h"
 
 
-@interface JSQMessagesMediaViewBubbleImageMasker ()
-
-- (void)jsq_maskView:(UIView *)view withImage:(UIImage *)image;
-
-@end
-
-
 @implementation JSQMessagesMediaViewBubbleImageMasker
 
 #pragma mark - Initialization
@@ -84,7 +77,12 @@
     UIImageView *imageViewMask = [[UIImageView alloc] initWithImage:image];
     imageViewMask.frame = CGRectInset(view.frame, 2.0f, 2.0f);
     
-    view.layer.mask = imageViewMask.layer;
+    if (@available(iOS 14.0, *)) {
+        view.maskView = imageViewMask;
+    } else {
+        view.layer.mask = imageViewMask.layer;
+    }
 }
 
 @end
+

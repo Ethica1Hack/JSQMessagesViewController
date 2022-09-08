@@ -18,7 +18,6 @@
 
 #import "DemoMessagesViewController.h"
 
-
 @implementation DemoMessagesViewController
 
 #pragma mark - View lifecycle
@@ -44,6 +43,7 @@
     self.senderId = kJSQDemoAvatarIdSquires;
     self.senderDisplayName = kJSQDemoAvatarDisplayNameSquires;
     
+    self.inputToolbar.contentView.textView.pasteDelegate = self;
     
     /**
      *  Load up our fake data for the demo
@@ -68,12 +68,29 @@
                                                                               style:UIBarButtonItemStyleBordered
                                                                              target:self
                                                                              action:@selector(receiveMessagePressed:)];
-    
+
+    /**
+     *  Register custom menu actions for cells.
+     */
+    [JSQMessagesCollectionViewCell registerMenuAction:@selector(customAction:)];
+
+	
+    /**
+     *  OPT-IN: allow cells to be deleted
+     */
+    [JSQMessagesCollectionViewCell registerMenuAction:@selector(delete:)];
+
     /**
      *  Customize your toolbar buttons
      *
      *  self.inputToolbar.contentView.leftBarButtonItem = custom button or nil to remove
      *  self.inputToolbar.contentView.rightBarButtonItem = custom button or nil to remove
+     */
+
+    /**
+     *  Set a maximum height for the input toolbar
+     *
+     *  self.inputToolbar.maximumHeight = 150;
      */
 }
 
@@ -98,6 +115,19 @@
      *  Note: this feature is mostly stable, but still experimental
      */
     self.collectionView.collectionViewLayout.springinessEnabled = [NSUserDefaults springinessSetting];
+}
+
+
+
+#pragma mark - Custom menu actions for cells
+
+- (void)didReceiveMenuWillShowNotification:(NSNotification *)notification
+{
+    /**
+     *  Display custom menu actions for cells.
+     */
+    UIMenuController *menu = [notification object];
+    menu.menuItems = @[ [[UIMenuItem alloc] initWithTitle:@"Custom Action" action:@selector(customAction:)] ];
 }
 
 
@@ -202,6 +232,18 @@
                 
                 newMediaData = videoItemCopy;
             }
+            else if ([copyMediaData isKindOfClass:[JSQAudioMediaItem class]]) {
+                JSQAudioMediaItem *audioItemCopy = [((JSQAudioMediaItem *)copyMediaData) copy];
+                audioItemCopy.appliesMediaViewMaskAsOutgoing = NO;
+                newMediaAttachmentCopy = [audioItemCopy.audioData copy];
+                
+                /**
+                 *  Reset audio item to simulate "downloading" the audio
+                 */
+                audioItemCopy.audioData = nil;
+                
+                newMediaData = audioItemCopy;
+            }
             else {
                 NSLog(@"%s error: unrecognized media item", __PRETTY_FUNCTION__);
             }
@@ -226,7 +268,9 @@
          *  2. Add new id<JSQMessageData> object to your data source
          *  3. Call `finishReceivingMessage`
          */
-        [JSQSystemSoundPlayer jsq_playMessageReceivedSound];
+
+        // [JSQSystemSoundPlayer jsq_playMessageReceivedSound];
+
         [self.demoData.messages addObject:newMessage];
         [self finishReceivingMessageAnimated:YES];
         
@@ -256,6 +300,10 @@
                 else if ([newMediaData isKindOfClass:[JSQVideoMediaItem class]]) {
                     ((JSQVideoMediaItem *)newMediaData).fileURL = newMediaAttachmentCopy;
                     ((JSQVideoMediaItem *)newMediaData).isReadyToPlay = YES;
+                    [self.collectionView reloadData];
+                }
+                else if ([newMediaData isKindOfClass:[JSQAudioMediaItem class]]) {
+                    ((JSQAudioMediaItem *)newMediaData).audioData = newMediaAttachmentCopy;
                     [self.collectionView reloadData];
                 }
                 else {
@@ -291,7 +339,8 @@
      *  2. Add new id<JSQMessageData> object to your data source
      *  3. Call `finishSendingMessage`
      */
-    [JSQSystemSoundPlayer jsq_playMessageSentSound];
+
+    // [JSQSystemSoundPlayer jsq_playMessageSentSound];
     
     JSQMessage *message = [[JSQMessage alloc] initWithSenderId:senderId
                                              senderDisplayName:senderDisplayName
@@ -305,11 +354,13 @@
 
 - (void)didPressAccessoryButton:(UIButton *)sender
 {
+    [self.inputToolbar.contentView.textView resignFirstResponder];
+
     UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:@"Media messages"
                                                        delegate:self
                                               cancelButtonTitle:@"Cancel"
                                          destructiveButtonTitle:nil
-                                              otherButtonTitles:@"Send photo", @"Send location", @"Send video", nil];
+                                              otherButtonTitles:@"Send photo", @"Send location", @"Send video", @"Send audio", nil];
     
     [sheet showFromToolbar:self.inputToolbar];
 }
@@ -317,6 +368,7 @@
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     if (buttonIndex == actionSheet.cancelButtonIndex) {
+        [self.inputToolbar.contentView.textView becomeFirstResponder];
         return;
     }
     
@@ -338,9 +390,13 @@
         case 2:
             [self.demoData addVideoMediaMessage];
             break;
+            
+        case 3:
+            [self.demoData addAudioMediaMessage];
+            break;
     }
     
-    [JSQSystemSoundPlayer jsq_playMessageSentSound];
+    // [JSQSystemSoundPlayer jsq_playMessageSentSound];
     
     [self finishSendingMessageAnimated:YES];
 }
@@ -352,6 +408,11 @@
 - (id<JSQMessageData>)collectionView:(JSQMessagesCollectionView *)collectionView messageDataForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     return [self.demoData.messages objectAtIndex:indexPath.item];
+}
+
+- (void)collectionView:(JSQMessagesCollectionView *)collectionView didDeleteMessageAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self.demoData.messages removeObjectAtIndex:indexPath.item];
 }
 
 - (id<JSQMessageBubbleImageDataSource>)collectionView:(JSQMessagesCollectionView *)collectionView messageBubbleImageDataForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -504,6 +565,43 @@
 
 
 
+#pragma mark - UICollectionView Delegate
+
+#pragma mark - Custom menu items
+
+- (BOOL)collectionView:(UICollectionView *)collectionView canPerformAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender
+{
+    if (action == @selector(customAction:)) {
+        return YES;
+    }
+
+    return [super collectionView:collectionView canPerformAction:action forItemAtIndexPath:indexPath withSender:sender];
+}
+
+- (void)collectionView:(UICollectionView *)collectionView performAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender
+{
+    if (action == @selector(customAction:)) {
+        [self customAction:sender];
+        return;
+    }
+
+    [super collectionView:collectionView performAction:action forItemAtIndexPath:indexPath withSender:sender];
+}
+
+- (void)customAction:(id)sender
+{
+    NSLog(@"Custom action received! Sender: %@", sender);
+
+    [[[UIAlertView alloc] initWithTitle:@"Custom Action"
+                               message:nil
+                              delegate:nil
+                     cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil]
+     show];
+}
+
+
+
 #pragma mark - JSQMessages collection view flow layout delegate
 
 #pragma mark - Adjusting cell label heights
@@ -576,6 +674,25 @@
 - (void)collectionView:(JSQMessagesCollectionView *)collectionView didTapCellAtIndexPath:(NSIndexPath *)indexPath touchLocation:(CGPoint)touchLocation
 {
     NSLog(@"Tapped cell at %@!", NSStringFromCGPoint(touchLocation));
+}
+
+#pragma mark - JSQMessagesComposerTextViewPasteDelegate methods
+
+
+- (BOOL)composerTextView:(JSQMessagesComposerTextView *)textView shouldPasteWithSender:(id)sender
+{
+    if ([UIPasteboard generalPasteboard].image) {
+        // If there's an image in the pasteboard, construct a media item with that image and `send` it.
+        JSQPhotoMediaItem *item = [[JSQPhotoMediaItem alloc] initWithImage:[UIPasteboard generalPasteboard].image];
+        JSQMessage *message = [[JSQMessage alloc] initWithSenderId:self.senderId
+                                                 senderDisplayName:self.senderDisplayName
+                                                              date:[NSDate date]
+                                                             media:item];
+        [self.demoData.messages addObject:message];
+        [self finishSendingMessage];
+        return NO;
+    }
+    return YES;
 }
 
 @end

@@ -33,12 +33,6 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 
 @property (assign, nonatomic) BOOL jsq_isObserving;
 
-- (void)jsq_leftBarButtonPressed:(UIButton *)sender;
-- (void)jsq_rightBarButtonPressed:(UIButton *)sender;
-
-- (void)jsq_addObservers;
-- (void)jsq_removeObservers;
-
 @end
 
 
@@ -55,9 +49,10 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
     [self setTranslatesAutoresizingMaskIntoConstraints:NO];
 
     self.jsq_isObserving = NO;
-    self.sendButtonOnRight = YES;
+    self.sendButtonLocation = JSQMessagesInputSendButtonLocationRight;
 
     self.preferredDefaultHeight = 44.0f;
+    self.maximumHeight = NSNotFound;
 
     JSQMessagesToolbarContentView *toolbarContentView = [self loadToolbarContentView];
     toolbarContentView.frame = self.frame;
@@ -85,7 +80,6 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 - (void)dealloc
 {
     [self jsq_removeObservers];
-    _contentView = nil;
 }
 
 #pragma mark - Setters
@@ -113,12 +107,15 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 - (void)toggleSendButtonEnabled
 {
     BOOL hasText = [self.contentView.textView hasText];
-
-    if (self.sendButtonOnRight) {
-        self.contentView.rightBarButtonItem.enabled = hasText;
-    }
-    else {
-        self.contentView.leftBarButtonItem.enabled = hasText;
+    switch (self.sendButtonLocation) {
+        case JSQMessagesInputSendButtonLocationRight:
+            self.contentView.rightBarButtonItem.enabled = hasText;
+            break;
+        case JSQMessagesInputSendButtonLocationLeft:
+            self.contentView.leftBarButtonItem.enabled = hasText;
+            break;
+        default:
+            break;
     }
 }
 

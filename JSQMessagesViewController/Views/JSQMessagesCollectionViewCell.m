@@ -26,6 +26,9 @@
 #import "UIDevice+JSQMessages.h"
 
 
+static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
+
+
 @interface JSQMessagesCollectionViewCell ()
 
 @property (weak, nonatomic) IBOutlet JSQMessagesLabel *cellTopLabel;
@@ -66,10 +69,17 @@
 @end
 
 
-
 @implementation JSQMessagesCollectionViewCell
 
 #pragma mark - Class methods
+
++ (void)initialize
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        jsqMessagesCollectionViewCellActions = [NSMutableSet new];
+    });
+}
 
 + (UINib *)nib
 {
@@ -84,6 +94,11 @@
 + (NSString *)mediaCellReuseIdentifier
 {
     return [NSString stringWithFormat:@"%@_JSQMedia", NSStringFromClass([self class])];
+}
+
++ (void)registerMenuAction:(SEL)action
+{
+    [jsqMessagesCollectionViewCellActions addObject:NSStringFromSelector(action)];
 }
 
 #pragma mark - Initialization
@@ -197,12 +212,14 @@
 - (void)setHighlighted:(BOOL)highlighted
 {
     [super setHighlighted:highlighted];
+    self.avatarImageView.highlighted = highlighted;
     self.messageBubbleImageView.highlighted = highlighted;
 }
 
 - (void)setSelected:(BOOL)selected
 {
     [super setSelected:selected];
+    self.avatarImageView.highlighted = selected;
     self.messageBubbleImageView.highlighted = selected;
 }
 
@@ -219,6 +236,41 @@
     if ([UIDevice jsq_isCurrentDeviceBeforeiOS8]) {
         self.contentView.frame = bounds;
     }
+}
+
+#pragma mark - Menu actions
+
+- (BOOL)respondsToSelector:(SEL)aSelector
+{
+    if ([jsqMessagesCollectionViewCellActions containsObject:NSStringFromSelector(aSelector)]) {
+        return YES;
+    }
+
+    return [super respondsToSelector:aSelector];
+}
+
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+}
+
+- (void)forwardInvocation:(NSInvocation *)anInvocation
+{
+    if ([jsqMessagesCollectionViewCellActions containsObject:NSStringFromSelector(anInvocation.selector)]) {
+        __unsafe_unretained id sender;
+        [anInvocation getArgument:&sender atIndex:0];
+        [self.delegate messagesCollectionViewCell:self didPerformAction:anInvocation.selector withSender:sender];
+    }
+    else {
+        [super forwardInvocation:anInvocation];
+    }
+}
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
+{
+    if ([jsqMessagesCollectionViewCellActions containsObject:NSStringFromSelector(aSelector)]) {
+        return [NSMethodSignature signatureWithObjCTypes:"v@:@"];
+    }
+
+    return [super methodSignatureForSelector:aSelector];
 }
 
 #pragma mark - Setters
@@ -276,11 +328,11 @@
     //  we may have dequeued a cell with a media view and add this one on top
     //  thus, remove any additional subviews hidden behind the new media view
     dispatch_async(dispatch_get_main_queue(), ^{
-        for (NSUInteger i = 0; i < self.messageBubbleContainerView.subviews.count; i++) {
-            if (self.messageBubbleContainerView.subviews[i] != _mediaView) {
-                [self.messageBubbleContainerView.subviews[i] removeFromSuperview];
+        [self.messageBubbleContainerView.subviews enumerateObjectsUsingBlock:^(UIView *subview, NSUInteger index, BOOL *stop) {
+            if (subview != _mediaView) {
+                [subview removeFromSuperview];
             }
-        }
+        }];
     });
 }
 
@@ -335,8 +387,8 @@
     if ([gestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]]) {
         return CGRectContainsPoint(self.messageBubbleContainerView.frame, touchPt);
     }
-
-    return YES;
+    
+    return NO;
 }
 
 @end

@@ -26,7 +26,7 @@ FOUNDATION_EXPORT const CGFloat kJSQMessagesTypingIndicatorFooterViewHeight;
 
 /**
  *  The `JSQMessagesTypingIndicatorFooterView` class implements a reusable view that can be placed
- *  at the bottom of a `JSQMessagesCollectionView`. This view represents a typing indicator 
+ *  at the bottom of a `JSQMessagesCollectionView`. This view represents a typing indicator
  *  for incoming messages.
  */
 @interface JSQMessagesTypingIndicatorFooterView : UICollectionReusableView
@@ -51,7 +51,7 @@ FOUNDATION_EXPORT const CGFloat kJSQMessagesTypingIndicatorFooterViewHeight;
 #pragma mark - Typing indicator
 
 /**
- *  Configures the receiver with the specified attributes for the given collection view. 
+ *  Configures the receiver with the specified attributes for the given collection view.
  *  Call this method after dequeuing the footer view.
  *
  *  @param ellipsisColor       The color of the typing indicator ellipsis. This value must not be `nil`.
@@ -61,6 +61,7 @@ FOUNDATION_EXPORT const CGFloat kJSQMessagesTypingIndicatorFooterViewHeight;
  */
 - (void)configureWithEllipsisColor:(UIColor *)ellipsisColor
                 messageBubbleColor:(UIColor *)messageBubbleColor
+                          animated:(BOOL)animated
                shouldDisplayOnLeft:(BOOL)shouldDisplayOnLeft
                  forCollectionView:(UICollectionView *)collectionView;
 
