@@ -115,19 +115,41 @@
 
 - (CAKeyframeAnimation *)fillColorAnimation
 {
-    CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
-    animation.keyPath = @"fillColor";
-    animation.values = @[ (id)self.dotsColor.CGColor,
-                          (id)self.dotsColor.CGColor,
-                          (id)self.animateToColor.CGColor,
-                          (id)self.dotsColor.CGColor,
-                          (id)self.dotsColor.CGColor,
-                          ];
-    animation.keyTimes = @[ @0, @(2/7.0), @(1/2.0), @(5/7.0), @1 ];
-    animation.duration = self.animationDuration;
-    animation.repeatCount = NSIntegerMax;
-    animation.autoreverses = YES;
-    return animation;
+    CAKeyframeAnimation *colorAnimation = [CAKeyframeAnimation animation];
+    colorAnimation.keyPath = @"fillColor";
+    colorAnimation.values = @[
+        (id)self.dotsColor.CGColor,
+        (id)self.dotsColor.CGColor,
+        (id)self.animateToColor.CGColor,
+        (id)self.dotsColor.CGColor,
+        (id)self.dotsColor.CGColor,
+    ];
+    colorAnimation.keyTimes = @[ @0, @(2/7.0), @(1/2.0), @(5/7.0), @1 ];
+    colorAnimation.duration = self.animationDuration;
+    colorAnimation.repeatCount = NSIntegerMax;
+    colorAnimation.autoreverses = YES;
+
+    CAKeyframeAnimation *scaleAnimation = [CAKeyframeAnimation animation];
+    scaleAnimation.keyPath = @"transform.scale";
+    scaleAnimation.values = @[
+        @(0.5), // Smaller
+        @(0.9), // Normal size
+        @(1.15), // Bigger
+        @(0.9), // Normal size
+        @(0.5) // Smaller
+    ];
+    scaleAnimation.keyTimes = @[ @0, @(2/7.0), @(1/2.0), @(5/7.0), @1 ];
+    scaleAnimation.duration = self.animationDuration;
+    scaleAnimation.repeatCount = NSIntegerMax;
+    scaleAnimation.autoreverses = YES;
+
+    CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
+    animationGroup.animations = @[colorAnimation, scaleAnimation];
+    animationGroup.duration = self.animationDuration;
+    animationGroup.repeatCount = NSIntegerMax;
+    animationGroup.autoreverses = YES;
+
+    return animationGroup;
 }
 
 @end
