@@ -1,4 +1,3 @@
-//
 //  Created by Jesse Squires
 //  http://www.jessesquires.com
 //
@@ -52,8 +51,8 @@
 {
     _animated = NO;
     _animationDuration = 1.33;
-    _dotsColor = [UIColor lightGrayColor];
-    _animateToColor = [UIColor grayColor];
+    _dotsColor = [UIColor colorWithRed:(185/255.0) green:(201/255.0) blue:(202/255.0) alpha:0.0];
+    _animateToColor = [UIColor colorWithRed:(185/255.0) green:(201/255.0) blue:(202/255.0) alpha:0.0];
 
     // Center points of dots on x axis are [2/7, 1/2, 5/7] of total view width.
     // Size od dot is aprox ~7.125 times smaller than view width.
@@ -116,19 +115,41 @@
 
 - (CAKeyframeAnimation *)fillColorAnimation
 {
-    CAKeyframeAnimation *animation = [CAKeyframeAnimation animation];
-    animation.keyPath = @"fillColor";
-    animation.values = @[ (id)self.dotsColor.CGColor,
-                          (id)self.dotsColor.CGColor,
-                          (id)self.animateToColor.CGColor,
-                          (id)self.dotsColor.CGColor,
-                          (id)self.dotsColor.CGColor,
-                          ];
-    animation.keyTimes = @[ @0, @(2/7.0), @(1/2.0), @(5/7.0), @1 ];
-    animation.duration = self.animationDuration;
-    animation.repeatCount = NSIntegerMax;
-    animation.autoreverses = YES;
-    return animation;
+    //CAKeyframeAnimation *colorAnimation = [CAKeyframeAnimation animation];
+    //colorAnimation.keyPath = @"fillColor";
+    //colorAnimation.values = @[
+    //    (id)self.dotsColor.CGColor,
+    //    (id)self.dotsColor.CGColor,
+    //    (id)self.animateToColor.CGColor,
+    //    (id)self.dotsColor.CGColor,
+    //    (id)self.dotsColor.CGColor,
+    //];
+    //colorAnimation.keyTimes = @[ @0, @(2/7.0), @(1/2.0), @(5/7.0), @1 ];
+    //colorAnimation.duration = self.animationDuration;
+    //colorAnimation.repeatCount = NSIntegerMax;
+    //colorAnimation.autoreverses = YES;
+
+    CAKeyframeAnimation *scaleAnimation = [CAKeyframeAnimation animation];
+    scaleAnimation.keyPath = @"transform.scale";
+    scaleAnimation.values = @[
+        @(0.5), // Smaller
+        @(0.85), // Normal size
+        @(1.0), // Bigger
+        @(0.85), // Normal size
+        @(0.5) // Smaller
+    ];
+    scaleAnimation.keyTimes = @[ @0, @(2/7.0), @(1/2.0), @(5/7.0), @1 ];
+    scaleAnimation.duration = self.animationDuration;
+    scaleAnimation.repeatCount = NSIntegerMax;
+    scaleAnimation.autoreverses = YES;
+
+    //CAAnimationGroup *animationGroup = [CAAnimationGroup animation];
+    //animationGroup.animations = @[colorAnimation, scaleAnimation];
+    //animationGroup.duration = self.animationDuration;
+    //animationGroup.repeatCount = NSIntegerMax;
+    //animationGroup.autoreverses = YES;
+
+    return scaleAnimation;
 }
 
 @end
