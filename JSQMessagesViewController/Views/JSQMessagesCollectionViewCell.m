@@ -210,19 +210,21 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
     
     // Apply different font size to emoji characters
       if ([self stringContainsOnlyEmoji:self.textView.text] && !(self.textView.text.length > 7)) {
-          CGFloat desiredEmojiFontSize = 55.0; // Adjust the value as needed
-          
-          NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.textView.attributedText];
-          
-          [attributedString enumerateAttribute:NSFontAttributeName inRange:NSMakeRange(0, attributedString.length) options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
-              if (value && [value isKindOfClass:[UIFont class]]) {
-                  UIFont *font = (UIFont *)value;
-                  if ([self isEmojiCharacter:[attributedString.string substringWithRange:range]]) {
-                      [attributedString addAttribute:NSFontAttributeName value:[font fontWithSize:desiredEmojiFontSize] range:range];
-                  }
-              }
-          }];
-          self.textView.attributedText = attributedString;
+          UIFont *messageBubbleFont = customAttributes.messageBubbleFont;
+            CGFloat emojiFontSize = messageBubbleFont.pointSize + 41; // Adjust the value as needed
+            UIFont *emojiFont = [UIFont fontWithName:messageBubbleFont.fontName size:emojiFontSize];
+            
+            NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.textView.attributedText];
+            
+            [attributedString enumerateAttribute:NSFontAttributeName inRange:NSMakeRange(0, attributedString.length) options:0 usingBlock:^(id value, NSRange range, BOOL *stop) {
+                if (value && [value isKindOfClass:[UIFont class]]) {
+                    UIFont *font = (UIFont *)value;
+                    if ([self isEmojiCharacter:[attributedString.string substringWithRange:range]]) {
+                        [attributedString addAttribute:NSFontAttributeName value:emojiFont range:range];
+                    }
+                }
+            }];
+            self.textView.attributedText = attributedString;
       }
 }
 
