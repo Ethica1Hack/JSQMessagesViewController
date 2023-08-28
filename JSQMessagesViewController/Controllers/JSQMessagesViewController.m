@@ -558,8 +558,19 @@ JSQMessagesKeyboardControllerDelegate>
     cell.delegate = collectionView;
 
     if (!isMediaMessage) {
-        cell.textView.text = [messageItem text];
+        if ([self stringContainsOnlyEmoji:[messageItem text]] && !([messageItem text].length > 7)) {
+            // Get the current message bubble font
+            UIFont *messageBubbleFont = [self.collectionView.collectionViewLayout messageBubbleFont];
+            // Calculate the desired font size
+            CGFloat emojiFontSize = messageBubbleFont.pointSize + 31;
+            // Create a new font with the desired font size
+            UIFont *EmojiFont = [UIFont fontWithName:messageBubbleFont.fontName size:emojiFontSize];
+            //[UIFont systemFontOfSize:55];
+            cell.textView.font = EmojiFont;
+        }
         
+        cell.textView.text = [messageItem text];
+
         NSParameterAssert(cell.textView.text != nil);
 
         id<JSQMessageBubbleImageDataSource> bubbleImageDataSource = [collectionView.dataSource collectionView:collectionView messageBubbleImageDataForItemAtIndexPath:indexPath];
@@ -611,24 +622,10 @@ JSQMessagesKeyboardControllerDelegate>
     }
 
     cell.textView.dataDetectorTypes = UIDataDetectorTypeNone;
-
-
-
-    if ([self stringContainsOnlyEmoji:[messageItem text]] && !([messageItem text].length > 7)) {
-        // Get the current message bubble font
-        UIFont *messageBubbleFont = [self.collectionView.collectionViewLayout messageBubbleFont];
-        // Calculate the desired font size
-        CGFloat emojiFontSize = messageBubbleFont.pointSize +41;
-        // Create a new font with the desired font size
-        UIFont *EmojiFont = [UIFont fontWithName:messageBubbleFont.fontName size:emojiFontSize];
-        //[UIFont systemFontOfSize:55];
-        cell.textView.font = EmojiFont;  
-    }
     
     cell.backgroundColor = [UIColor clearColor];
     cell.layer.rasterizationScale = [UIScreen mainScreen].scale;
     cell.layer.shouldRasterize = YES;
-    [cell layoutIfNeeded];
     
     [self collectionView:collectionView accessibilityForCell:cell indexPath:indexPath message:messageItem];
 
