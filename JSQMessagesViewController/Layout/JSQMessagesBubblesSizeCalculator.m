@@ -134,9 +134,9 @@
         
         CGFloat finalWidth = MAX(stringSize.width + horizontalInsetsTotal, self.minimumBubbleWidth) + self.additionalInset;
 
-        if ([self stringContainsOnlyEmoji:[messageData text]] && !([messageData text].length > 5)) {
+        if ([self stringContainsOnlyEmoji:[messageData text]] && !([messageData text].length > 7)) {
             // Increase the bubble width for emojis
-            finalWidth += MAX(20 + stringSize.width + horizontalInsetsTotal, self.minimumBubbleWidth) + self.additionalInset;
+            finalWidth += MAX(35 + stringSize.width + horizontalInsetsTotal, self.minimumBubbleWidth) + self.additionalInset;
         }
 
         finalSize = CGSizeMake(finalWidth, stringSize.height + verticalInsets);
