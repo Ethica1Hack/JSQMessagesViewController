@@ -178,7 +178,7 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
     [super applyLayoutAttributes:layoutAttributes];
 
     JSQMessagesCollectionViewLayoutAttributes *customAttributes = (JSQMessagesCollectionViewLayoutAttributes *)layoutAttributes;
-
+    
     if (self.textView.font != customAttributes.messageBubbleFont) {
         self.textView.font = customAttributes.messageBubbleFont;
     }
@@ -207,7 +207,21 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
     else if ([self isKindOfClass:[JSQMessagesCollectionViewCellOutgoing class]]) {
         self.avatarViewSize = customAttributes.outgoingAvatarViewSize;
     }
+    
+    // Check if textView contains emojis and set font accordingly
+    if ([self containsEmojis:self.textView.text]) {
+        // Set the desired font size for emoji-containing text
+        CGFloat desiredFontSize = 55.0;
+        self.textView.font = [UIFont fontWithName:customAttributes.messageBubbleFont.fontName size:desiredFontSize];
+    }
 }
+
+- (BOOL)containsEmojis:(NSString *)text {
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\p{Emoji}" options:0 error:nil];
+    NSUInteger numberOfMatches = [regex numberOfMatchesInString:text options:0 range:NSMakeRange(0, text.length)];
+    return numberOfMatches > 0;
+}
+
 
 - (void)setHighlighted:(BOOL)highlighted
 {
