@@ -136,7 +136,7 @@
 
         if ([self stringContainsOnlyEmoji:[messageData text]] && !([messageData text].length > 7)) {
             // Increase the bubble width for emojis
-            finalWidth += MAX(35 + stringSize.width + horizontalInsetsTotal, self.minimumBubbleWidth) + self.additionalInset;
+            finalWidth += MAX(5 + stringSize.width + horizontalInsetsTotal, self.minimumBubbleWidth) + self.additionalInset;
         }
 
         finalSize = CGSizeMake(finalWidth, stringSize.height + verticalInsets);
