@@ -617,7 +617,7 @@ JSQMessagesKeyboardControllerDelegate>
     cell.layer.shouldRasterize = YES;
     [self collectionView:collectionView accessibilityForCell:cell indexPath:indexPath message:messageItem];
 
-    if ([self stringContainsOnlyEmoji:[messageItem text]] && !([messageItem text].length > 5)) {
+    if ([self stringContainsOnlyEmoji:[messageItem text]] && !([messageItem text].length > 7)) {
         cell.textView.font = [UIFont systemFontOfSize:55];
     }
     
