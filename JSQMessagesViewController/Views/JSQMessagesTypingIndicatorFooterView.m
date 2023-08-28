@@ -113,7 +113,7 @@ const CGFloat kJSQMessagesTypingIndicatorFooterViewHeight = 46.0f;
     [self setNeedsUpdateConstraints];
  
         self.typingView.dotsColor = [UIColor colorWithRed:(185/255.0) green:(201/255.0) blue:(202/255.0) alpha:1.0];
-        self.typingView.animateToColor = [UIColor colorWithRed:(39/255.0) green:(48/255.0) blue:(61/255.0) alpha:0.0];
+        self.typingView.animateToColor = [UIColor colorWithRed:(185/255.0) green:(201/255.0) blue:(202/255.0) alpha:0.0];
         self.typingView.animated = animated;
         self.typingView.animationDuration = 1.33;
 
