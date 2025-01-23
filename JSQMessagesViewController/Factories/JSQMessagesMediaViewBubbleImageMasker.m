@@ -17,67 +17,70 @@
 //
 
 #import "JSQMessagesMediaViewBubbleImageMasker.h"
-
 #import "JSQMessagesBubbleImageFactory.h"
-
 
 @implementation JSQMessagesMediaViewBubbleImageMasker
 
 #pragma mark - Initialization
 
-- (instancetype)init
-{
+- (instancetype)init {
     return [self initWithBubbleImageFactory:[[JSQMessagesBubbleImageFactory alloc] init]];
 }
 
-- (instancetype)initWithBubbleImageFactory:(JSQMessagesBubbleImageFactory *)bubbleImageFactory
-{
+- (instancetype)initWithBubbleImageFactory:(JSQMessagesBubbleImageFactory *)bubbleImageFactory {
     NSParameterAssert(bubbleImageFactory != nil);
-    
-    self = [super init];
-    if (self) {
+    if (self = [super init]) {
         _bubbleImageFactory = bubbleImageFactory;
     }
     return self;
 }
 
-#pragma mark - View masking
+#pragma mark - Public Methods
 
-- (void)applyOutgoingBubbleImageMaskToMediaView:(UIView *)mediaView
-{
-    JSQMessagesBubbleImage *bubbleImageData = [self.bubbleImageFactory outgoingMessagesBubbleImageWithColor:[UIColor whiteColor]];
-    [self jsq_maskView:mediaView withImage:[bubbleImageData messageBubbleImage]];
+- (void)applyOutgoingBubbleImageMaskToMediaView:(UIView *)mediaView {
+    [self applyBubbleImageMaskToMediaView:mediaView
+                                    color:[UIColor whiteColor]
+                              isOutgoing:YES];
 }
 
-- (void)applyIncomingBubbleImageMaskToMediaView:(UIView *)mediaView
-{
-    JSQMessagesBubbleImage *bubbleImageData = [self.bubbleImageFactory incomingMessagesBubbleImageWithColor:[UIColor whiteColor]];
-    [self jsq_maskView:mediaView withImage:[bubbleImageData messageBubbleImage]];
+- (void)applyIncomingBubbleImageMaskToMediaView:(UIView *)mediaView {
+    [self applyBubbleImageMaskToMediaView:mediaView
+                                    color:[UIColor whiteColor]
+                              isOutgoing:NO];
 }
 
-+ (void)applyBubbleImageMaskToMediaView:(UIView *)mediaView isOutgoing:(BOOL)isOutgoing
-{
++ (void)applyBubbleImageMaskToMediaView:(UIView *)mediaView isOutgoing:(BOOL)isOutgoing {
+    NSParameterAssert(mediaView != nil);
+
+    UIColor *bubbleColor = [UIColor whiteColor];
     JSQMessagesMediaViewBubbleImageMasker *masker = [[JSQMessagesMediaViewBubbleImageMasker alloc] init];
-    
-    if (isOutgoing) {
-        [masker applyOutgoingBubbleImageMaskToMediaView:mediaView];
-    }
-    else {
-        [masker applyIncomingBubbleImageMaskToMediaView:mediaView];
-    }
+    [masker applyBubbleImageMaskToMediaView:mediaView color:bubbleColor isOutgoing:isOutgoing];
 }
 
-#pragma mark - Private
+#pragma mark - Private Helpers
 
-- (void)jsq_maskView:(UIView *)view withImage:(UIImage *)image
-{
+- (void)applyBubbleImageMaskToMediaView:(UIView *)mediaView color:(UIColor *)color isOutgoing:(BOOL)isOutgoing {
+    JSQMessagesBubbleImage *bubbleImageData = isOutgoing
+        ? [self.bubbleImageFactory outgoingMessagesBubbleImageWithColor:color]
+        : [self.bubbleImageFactory incomingMessagesBubbleImageWithColor:color];
+    
+    [self jsq_maskView:mediaView withImage:[bubbleImageData messageBubbleImage]];
+}
+
+- (void)jsq_maskView:(UIView *)view withImage:(UIImage *)image {
     NSParameterAssert(view != nil);
     NSParameterAssert(image != nil);
     
     UIImageView *imageViewMask = [[UIImageView alloc] initWithImage:image];
-    imageViewMask.frame = CGRectInset(view.frame, 2.0f, 2.0f);
-    
-    view.layer.mask = imageViewMask.layer;
+    imageViewMask.frame = CGRectInset(view.bounds, 2.0f, 2.0f);
+    imageViewMask.contentMode = UIViewContentModeScaleAspectFill;
+
+    if (@available(iOS 14.0, *)) {
+        view.maskView = imageViewMask;
+    } else {
+        view.layer.mask = imageViewMask.layer;
+        view.layer.masksToBounds = YES;
+    }
 }
 
 @end
