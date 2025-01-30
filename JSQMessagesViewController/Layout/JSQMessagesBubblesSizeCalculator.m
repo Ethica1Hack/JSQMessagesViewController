@@ -148,8 +148,12 @@
 }
 
 - (BOOL)stringContainsOnlyEmoji:(NSString *)string {
-    __block BOOL onlyEmoji = YES;
+    NSNumber *cachedResult = [self.cache objectForKey:string];
+    if (cachedResult != nil) {
+        return [cachedResult boolValue];
+    }
 
+    __block BOOL onlyEmoji = YES;
     [string enumerateSubstringsInRange:NSMakeRange(0, string.length)
                                options:NSStringEnumerationByComposedCharacterSequences
                             usingBlock:^(NSString* substring, NSRange substringRange, NSRange enclosingRange, BOOL* stop) {
@@ -158,7 +162,8 @@
             *stop = YES;
         }
     }];
-
+    
+    [self.cache setObject:@(onlyEmoji) forKey:string];
     return onlyEmoji;
 }
 
