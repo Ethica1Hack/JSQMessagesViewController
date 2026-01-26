@@ -75,9 +75,34 @@
     return [UIImage jsq_bubbleImageFromBundleWithName:@"bubble_stroked_tailless"];
 }
 
+//+ (UIImage *)jsq_bubbleCompactImage
+//{
+//    return [UIImage jsq_bubbleImageFromBundleWithName:@"bubble_min"];
+//}
+
 + (UIImage *)jsq_bubbleCompactImage
 {
-    return [UIImage jsq_bubbleImageFromBundleWithName:@"bubble_min"];
+    // Base bubble size (before stretch)
+    CGSize size = CGSizeMake(40, 28);
+
+    CGFloat cornerRadius = 30.0; // smaller corners
+
+    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextClearRect(ctx, CGRectMake(0, 0, size.width, size.height));
+
+    // Draw rounded bubble
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, size.width, size.height)
+                                                    cornerRadius:cornerRadius];
+    [[UIColor whiteColor] setFill]; // base color, will be tinted later
+    [path fill];
+
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    // Make stretchable from center
+    UIEdgeInsets insets = UIEdgeInsetsMake(size.height/2, size.width/2, size.height/2, size.width/2);
+    return [img resizableImageWithCapInsets:insets resizingMode:UIImageResizingModeStretch];
 }
 
 + (UIImage *)jsq_bubbleCompactTaillessImage
