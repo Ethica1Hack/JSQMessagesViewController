@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
     cache.countLimit = 200;
 
     return [self initWithCache:cache
-            minimumBubbleWidth:[UIImage jsq_bubbleCompactImage].size.width
+            minimumBubbleWidth:[UIImage jsq_outgoingTwoToneBubble].size.width
          usesFixedWidthBubbles:NO];
 }
 

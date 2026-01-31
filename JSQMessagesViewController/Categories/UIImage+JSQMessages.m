@@ -82,26 +82,79 @@
 
 + (UIImage *)jsq_bubbleCompactImage
 {
-    // Base bubble size (before stretch)
     CGSize size = CGSizeMake(40, 28);
 
-    CGFloat cornerRadius = 30.0; // smaller corners
+    CGFloat cornerRadius = 2.5;
+    CGFloat stripeWidth = 2.77;
 
     UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
     CGContextRef ctx = UIGraphicsGetCurrentContext();
+
     CGContextClearRect(ctx, CGRectMake(0, 0, size.width, size.height));
 
-    // Draw rounded bubble
-    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, size.width, size.height)
-                                                    cornerRadius:cornerRadius];
-    [[UIColor whiteColor] setFill]; // base color, will be tinted later
-    [path fill];
+    // 1️⃣ Bubble body (alpha 0.3)
+    UIBezierPath *bubblePath =
+        [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, size.width, size.height)
+                                   cornerRadius:cornerRadius];
+
+    [[UIColor colorWithWhite:1.0 alpha:0.33] setFill];
+    [bubblePath fill];
+
+    // 2️⃣ Stripe (alpha 1.0) — RIGHT side (outgoing base)
+    CGRect stripeRect = CGRectMake(size.width - stripeWidth,
+                                   0,
+                                   stripeWidth,
+                                   size.height);
+
+    [[UIColor colorWithWhite:1.0 alpha:1.0] setFill];
+    CGContextFillRect(ctx, stripeRect);
 
     UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
 
-    // Make stretchable from center
-    UIEdgeInsets insets = UIEdgeInsetsMake(size.height/2, size.width/2, size.height/2, size.width/2);
+    // 3️⃣ Stretch safely
+    UIEdgeInsets insets = UIEdgeInsetsMake(
+        size.height / 2,
+        size.width / 2,
+        size.height / 2,
+        stripeWidth
+    );
+
+    return [img resizableImageWithCapInsets:insets
+                              resizingMode:UIImageResizingModeStretch];
+}
+
++ (UIImage *)jsq_outgoingTwoToneBubble
+{
+    CGSize size = CGSizeMake(40, 28);
+
+    CGFloat cornerRadius = 2.5;
+    CGFloat stripeWidth  = 3.0;
+
+    UIColor *bodyColor   = [UIColor colorWithRed:33/255.0 green:37/255.0 blue:39/255.0 alpha:1];
+    UIColor *stripeColor = [UIColor colorWithRed:66/255.0 green:74/255.0 blue:77/255.0 alpha:1];
+
+    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+
+    // BODY
+    UIBezierPath *path =
+        [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, size.width, size.height)
+                                   cornerRadius:cornerRadius];
+
+    [bodyColor setFill];
+    [path fill];
+
+    // STRIPE RIGHT
+    CGRect stripe = CGRectMake(size.width - stripeWidth, 0, stripeWidth, size.height);
+    [stripeColor setFill];
+    CGContextFillRect(ctx, stripe);
+
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    UIEdgeInsets insets = UIEdgeInsetsMake(size.height/2, size.width/2, size.height/2, stripeWidth);
+
     return [img resizableImageWithCapInsets:insets resizingMode:UIImageResizingModeStretch];
 }
 

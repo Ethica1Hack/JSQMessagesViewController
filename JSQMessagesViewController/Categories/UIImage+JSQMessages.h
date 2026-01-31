@@ -50,7 +50,7 @@
 + (UIImage *)jsq_bubbleRegularStrokedTaillessImage;
 
 /**
- *  @return The compact message bubble image. 
+ *  @return The compact message bubble image.
  *
  *  @discussion This is the default bubble image used by `JSQMessagesBubbleImageFactory`.
  */
@@ -80,5 +80,9 @@
  *  @return The default pause icon image.
  */
 + (UIImage *)jsq_defaultPauseImage;
+/**
+ *  @return Incoming and outgoing bubbles for factory!
+ */
++ (UIImage *)jsq_outgoingTwoToneBubble;
 
 @end
