@@ -70,9 +70,9 @@
 {
     NSCache *cache = [NSCache new];
     cache.name = @"JSQMessagesBubblesSizeCalculator.cache";
-    cache.countLimit = 200;
+    cache.countLimit = 300;
     return [self initWithCache:cache
-            minimumBubbleWidth:[UIImage jsq_outgoingTwoToneBubble].size.width
+            minimumBubbleWidth:[UIImage jsq_bubbleCompactImage].size.width
          usesFixedWidthBubbles:NO];
 }
 

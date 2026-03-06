@@ -124,40 +124,6 @@
                               resizingMode:UIImageResizingModeStretch];
 }
 
-+ (UIImage *)jsq_outgoingTwoToneBubble
-{
-    CGSize size = CGSizeMake(40, 28);
-
-    CGFloat cornerRadius = 2.5;
-    CGFloat stripeWidth  = 3.0;
-
-    UIColor *bodyColor   = [UIColor colorWithRed:33/255.0 green:37/255.0 blue:39/255.0 alpha:1];
-    UIColor *stripeColor = [UIColor colorWithRed:66/255.0 green:74/255.0 blue:77/255.0 alpha:1];
-
-    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-
-    // BODY
-    UIBezierPath *path =
-        [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, size.width, size.height)
-                                   cornerRadius:cornerRadius];
-
-    [bodyColor setFill];
-    [path fill];
-
-    // STRIPE RIGHT
-    CGRect stripe = CGRectMake(size.width - stripeWidth, 0, stripeWidth, size.height);
-    [stripeColor setFill];
-    CGContextFillRect(ctx, stripe);
-
-    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-
-    UIEdgeInsets insets = UIEdgeInsetsMake(size.height/2, size.width/2, size.height/2, stripeWidth);
-
-    return [img resizableImageWithCapInsets:insets resizingMode:UIImageResizingModeStretch];
-}
-
 + (UIImage *)jsq_bubbleCompactTaillessImage
 {
     return [UIImage jsq_bubbleImageFromBundleWithName:@"bubble_min_tailless"];
