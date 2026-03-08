@@ -59,13 +59,30 @@
 
 #pragma mark - Private Helpers
 
+//- (void)applyBubbleImageMaskToMediaView:(UIView *)mediaView color:(UIColor *)color isOutgoing:(BOOL)isOutgoing {
+//    UIImage *solidBubble = [UIImage jsq_solidBubbleImage];
+//    JSQMessagesBubbleImage *bubbleImageData = isOutgoing
+//        ? [self.bubbleImageFactory outgoingMessagesBubbleImageWithColor:solidBubble]
+//        : [self.bubbleImageFactory incomingMessagesBubbleImageWithColor:solidBubble];
+//
+//    [self jsq_maskView:mediaView withImage:[bubbleImageData messageBubbleImage]];
+//}
+
 - (void)applyBubbleImageMaskToMediaView:(UIView *)mediaView color:(UIColor *)color isOutgoing:(BOOL)isOutgoing {
-    JSQMessagesBubbleImage *bubbleImageData = isOutgoing
-        ? [self.bubbleImageFactory outgoingMessagesBubbleImageWithColor:color]
-        : [self.bubbleImageFactory incomingMessagesBubbleImageWithColor:color];
+    UIImage *solidBubble = [UIImage jsq_solidBubbleImage];
     
-    [self jsq_maskView:mediaView withImage:[bubbleImageData messageBubbleImage]];
+    UIImageView *maskView = [[UIImageView alloc] initWithImage:solidBubble];
+    maskView.frame = mediaView.bounds;
+    maskView.contentMode = UIViewContentModeScaleAspectFill;
+    
+    if (@available(iOS 14.0, *)) {
+        mediaView.maskView = maskView;
+    } else {
+        mediaView.layer.mask = maskView.layer;
+        mediaView.layer.masksToBounds = YES;
+    }
 }
+
 
 - (void)jsq_maskView:(UIView *)view withImage:(UIImage *)image {
     NSParameterAssert(view != nil);
