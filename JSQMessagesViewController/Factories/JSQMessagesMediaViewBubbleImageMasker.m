@@ -18,6 +18,7 @@
 
 #import "JSQMessagesMediaViewBubbleImageMasker.h"
 #import "JSQMessagesBubbleImageFactory.h"
+#import "UIImage+JSQMessages.h"
 
 @implementation JSQMessagesMediaViewBubbleImageMasker
 
