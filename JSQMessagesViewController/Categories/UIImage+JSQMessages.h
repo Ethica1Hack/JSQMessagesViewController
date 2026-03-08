@@ -55,7 +55,7 @@
  *  @discussion This is the default bubble image used by `JSQMessagesBubbleImageFactory`.
  */
 + (UIImage *)jsq_bubbleCompactImage;
-
++ (UIImage *)jsq_solidBubbleImage;
 /**
  *  @return The compact message bubble image without a tail.
  */
