@@ -130,16 +130,16 @@
     CGFloat cornerRadius = 2.5;
     CGFloat stripeWidth = 2.77;
 
-    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0); // NO for opaque
+    UIGraphicsBeginImageContextWithOptions(size, YES, 0.0);
     CGContextRef ctx = UIGraphicsGetCurrentContext();
 
-    // Full bubble rectangle — opaque white
+    // Full bubble rectangle
     UIBezierPath *bubblePath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0,0,size.width,size.height)
                                                           cornerRadius:cornerRadius];
-    [[UIColor whiteColor] setFill];  // fully opaque
+    [[UIColor colorWithRed:27.0/255.0 green:27.0/255.0 blue:27.0/255.0 alpha:1.0] setFill];
     [bubblePath fill];
 
-    // Optional stripe for style
+    // Optional stripe
     CGRect stripeRect = CGRectMake(size.width - stripeWidth, 0, stripeWidth, size.height);
     [[UIColor whiteColor] setFill];
     CGContextFillRect(ctx, stripeRect);
@@ -148,7 +148,7 @@
     UIGraphicsEndImageContext();
 
     // Stretch safely
-    UIEdgeInsets insets = UIEdgeInsetsMake(size.height/2, size.width/2, size.height/2, stripeWidth);
+    UIEdgeInsets insets = UIEdgeInsetsMake(cornerRadius, cornerRadius, cornerRadius, stripeWidth);
     return [img resizableImageWithCapInsets:insets resizingMode:UIImageResizingModeStretch];
 }
 
